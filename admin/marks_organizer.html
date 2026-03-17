@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks Bug Control</title>
+    <title>Marks Bug Control</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="admin-body">
+    <div class="admin-container">
+        <div class="header-area">
+            <h1>Marks Bug Control</h1>
+            <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Back to Dashboard</a>
+        </div>
+
+        <div class="panel">
+            <div class="form-group">
+                <label>Event Name</label>
+                <input type="text" id="eventName" placeholder="e.g. 100M BOYS FINAL">
+            </div>
+
+            <div class="form-group">
+                <label style="color: var(--admin-text-muted); font-size: 0.9em;">
+                    Auto-hide (Seconds): <input type="number" id="autoHide" value="10"
+                        style="width: 80px; display: inline-block; margin-left: 10px;">
+                </label>
+            </div>
+
+            <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div>
+                    <h3>1st Place</h3>
+                    <div class="form-group"><input type="text" id="name1" placeholder="Name"></div>
+                    <div class="form-group"><input type="text" id="house1" placeholder="House/Team"></div>
+                    <div class="form-group"><input type="text" id="mark1" placeholder="Time/Distance"></div>
+                </div>
+                <div>
+                    <h3>2nd Place</h3>
+                    <div class="form-group"><input type="text" id="name2" placeholder="Name"></div>
+                    <div class="form-group"><input type="text" id="house2" placeholder="House/Team"></div>
+                    <div class="form-group"><input type="text" id="mark2" placeholder="Time/Distance"></div>
+                </div>
+                <div>
+                    <h3>3rd Place</h3>
+                    <div class="form-group"><input type="text" id="name3" placeholder="Name"></div>
+                    <div class="form-group"><input type="text" id="house3" placeholder="House/Team"></div>
+                    <div class="form-group"><input type="text" id="mark3" placeholder="Time/Distance"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-danger" style="flex: 1; padding: 15px;" onclick="updateLive()">Update LIVE
+                    Marks</button>
+                <button class="btn btn-primary" style="flex: 1; padding: 15px;" onclick="addToQueue()">+ Add to
+                    Queue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateLive() {
+            const data = {
+                eventName: document.getElementById('eventName').value,
+                places: [
+                    { name: document.getElementById('name1').value, house: document.getElementById('house1').value, mark: document.getElementById('mark1').value },
+                    { name: document.getElementById('name2').value, house: document.getElementById('house2').value, mark: document.getElementById('mark2').value },
+                    { name: document.getElementById('name3').value, house: document.getElementById('house3').value, mark: document.getElementById('mark3').value }
+                ]
+            };
+
+            if (!data.eventName) {
+                alert("Please enter an Event Name.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'marks',
+                        data: {
+                            ...data,
+                            visible: true,
+                            autoHideSeconds: parseInt(document.getElementById('autoHide').value || 10)
+                        }
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Marks Updated LIVE!');
+                } else {
+                    alert('Failed to update live');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        async function addToQueue() {
+            const data = {
+                eventName: document.getElementById('eventName').value,
+                places: [
+                    { name: document.getElementById('name1').value, house: document.getElementById('house1').value, mark: document.getElementById('mark1').value },
+                    { name: document.getElementById('name2').value, house: document.getElementById('house2').value, mark: document.getElementById('mark2').value },
+                    { name: document.getElementById('name3').value, house: document.getElementById('house3').value, mark: document.getElementById('mark3').value }
+                ]
+            };
+
+            if (!data.eventName) {
+                alert("Please enter an Event Name.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/queue.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', type: 'marks', data: data })
+                });
+
+                if (res.ok) {
+                    alert('Added to Queue!');
+                    ['name1', 'name2', 'name3', 'house1', 'house2', 'house3', 'mark1', 'mark2', 'mark3'].forEach(id => document.getElementById(id).value = '');
+                } else {
+                    alert('Failed to add to queue');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        // Check Auth
+        fetch('../api/check_auth.php').then(res => { if (!res.ok) window.location.href = 'login.html'; });
+    </script>
+</body>
+
+</html>

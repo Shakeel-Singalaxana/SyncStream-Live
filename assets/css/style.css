@@ -1,0 +1,379 @@
+/* assets/css/style.css */
+:root {
+    --color-navy: #000080;
+    --color-maroon: #800000;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-ash: #b2b2b2;
+    --color-gold: #ffd700;
+    --font-main: 'Arial Black', Arial, sans-serif;
+    --font-admin: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --skew-angle: -20deg;
+
+    /* Admin Dark Theme */
+    --admin-bg: #1e1e1e;
+    --admin-panel: #2a2a2a;
+    --admin-panel-hover: #333333;
+    --admin-text: #dddddd;
+    --admin-text-muted: #888888;
+    --admin-border: #333333;
+    --admin-accent: #000080;
+    --admin-danger: #d93025;
+    --admin-success: #4caf50;
+    --admin-gold: #ffd700;
+}
+
+/* Base Body - Overlays are transparent by default, Admin will override */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    color: white;
+    background-color: transparent;
+    /* Essential for vMix/OBS */
+}
+
+/* Admin Page Layout */
+.admin-body {
+    background-color: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: var(--font-admin);
+    min-height: 100vh;
+    overflow: auto;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Panels / Cards */
+.panel {
+    background: var(--admin-panel);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--admin-border);
+}
+
+.card {
+    background: var(--admin-panel);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--admin-border);
+    transition: transform 0.2s, background 0.2s;
+    text-decoration: none;
+    color: var(--admin-text);
+    display: block;
+    border-top: 5px solid var(--color-maroon);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: var(--admin-panel-hover);
+}
+
+/* Typography */
+.header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--admin-border);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+h1,
+h2,
+h3 {
+    color: #fff;
+    margin-top: 0;
+}
+
+.text-muted {
+    color: var(--admin-text-muted);
+    font-size: 0.9em;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--admin-text-muted);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    border: 1px solid var(--admin-border);
+    color: #fff;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Buttons */
+.btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background 0.2s;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: var(--admin-accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-danger {
+    background: var(--admin-danger);
+    color: white;
+}
+
+.btn-success {
+    background: var(--admin-success);
+    color: white;
+}
+
+/* Grid Layouts */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 15px;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+}
+
+/* Dashboard Specific Panels */
+.panel-full {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Status & Blinking */
+.sb-status {
+    font-weight: bold;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.blink {
+    animation: blinker 1s linear infinite;
+    color: var(--admin-gold);
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Queues */
+.queue-container {
+    flex: 1;
+    overflow-y: auto;
+    background: #111;
+    border-radius: 4px;
+}
+
+.queue-item {
+    background: var(--admin-panel);
+    border-bottom: 1px solid var(--admin-border);
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.queue-item:hover {
+    background: var(--admin-panel-hover);
+}
+
+.queue-item.new-item {
+    border-left: 4px solid var(--admin-success);
+    animation: flash 2s;
+}
+
+@keyframes flash {
+    from {
+        background-color: var(--admin-success);
+    }
+
+    to {
+        background-color: var(--admin-panel);
+    }
+}
+
+.q-details h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 0.95em;
+}
+
+.q-details p {
+    margin: 2px 0 0;
+    color: var(--admin-text-muted);
+    font-size: 0.8em;
+}
+
+/* Special Buttons */
+.btn-go {
+    background: var(--admin-danger);
+    color: white;
+}
+
+.btn-hide {
+    background: #555;
+    color: white;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.btn-del {
+    background: transparent;
+    color: #666;
+    font-size: 1.2em;
+    padding: 0 5px;
+}
+
+.btn-del:hover {
+    color: var(--admin-danger);
+}
+
+.btn-sync {
+    background: var(--admin-success);
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+}
+
+/* --- OVERLAY SPECIFIC BASICS (Stay here for shared vars) --- */
+
+/* Base overlay container */
+.overlay-container {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.overlay-container.visible {
+    opacity: 1;
+}
+
+/* Skewed Box Utility */
+.skew-box {
+    background: var(--bg-color, var(--color-navy));
+    color: var(--text-color, var(--color-white));
+    padding: 10px 30px;
+    transform: skewX(var(--skew-angle));
+    margin-right: 5px;
+    box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.skew-box>* {
+    transform: skewX(calc(var(--skew-angle) * -1));
+    /* Un-skew text */
+    display: block;
+}
+
+/* Specific elements */
+.logo-box {
+    background: var(--color-white);
+    padding: 10px;
+    border-radius: 5px;
+    /* Slight round for logo box */
+    transform: skewX(var(--skew-angle));
+    margin-right: 15px;
+    border: 3px solid var(--color-maroon);
+    height: 80px;
+    width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
+}
+
+.logo-box img {
+    transform: skewX(calc(var(--skew-angle) * -1));
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.title-box {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    --bg-color: var(--color-maroon);
+}
+
+.subtitle-box {
+    font-size: 1.5rem;
+    --bg-color: var(--color-navy);
+}
+
+/* Animations */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%) skewX(var(--skew-angle));
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0) skewX(var(--skew-angle));
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0) skewX(var(--skew-angle));
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(-100%) skewX(var(--skew-angle));
+        opacity: 0;
+    }
+}
+
+.animate-in {
+    animation: slideInLeft 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-out {
+    animation: slideOutLeft 0.5s ease-in forwards;
+}

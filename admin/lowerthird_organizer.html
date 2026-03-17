@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower Third Control</title>
+    <title>Lower Third Control</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="admin-body">
+    <div class="admin-container">
+        <div class="header-area">
+            <h1>Lower Third Control</h1>
+            <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Back to Dashboard</a>
+        </div>
+
+        <div class="panel" style="max-width: 600px; margin: auto;">
+            <h2>Bug Handler (Data Entry)</h2>
+            <p class="text-muted" style="text-align: center;">Enter details to add to operator queue</p>
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="name" placeholder="Enter Name">
+            </div>
+
+            <div class="form-group">
+                <label>Designation</label>
+                <input type="text" id="designation" placeholder="Enter Designation">
+            </div>
+
+            <div class="form-group">
+                <label>Styles</label>
+                <select id="colorScheme">
+                    <option value="default">Default (Navy/Maroon)</option>
+                    <option value="gold">Gold Theme</option>
+                    <option value="ash">Ash Theme</option>
+                    <option value="black">Black Theme</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Logo Filename</label>
+                <input type="text" id="logoFilename" placeholder="e.g. logo.png" value="logo.png">
+                <small class="text-muted">File must be in assets/media/</small>
+            </div>
+
+            <button class="btn btn-primary" style="padding: 15px; margin-top: 10px;" onclick="addToQueue()">+ Add to
+                Queue</button>
+        </div>
+    </div>
+
+    <!-- Queue Column Removed for Organizer (or kept read-only? User said 'only add to queue') -->
+    <!-- Let's remove it to keep it simple as requested -->
+
+    <script>
+        // --- ORGANIZER LOGIC (Data Entry) ---
+
+        async function addToQueue() {
+            const data = {
+                name: document.getElementById('name').value,
+                designation: document.getElementById('designation').value,
+                theme: document.getElementById('colorScheme').value,
+                logo: document.getElementById('logoFilename').value,
+                visible: true // Default (Operator will control actual visibility)
+            };
+
+            if (!data.name && !data.designation) {
+                alert("Please enter a name or designation.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/queue.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', data: data })
+                });
+
+                if (res.ok) {
+                    // Success Feedback
+                    alert('Added to Queue Successfully!');
+                    // Clear inputs
+                    document.getElementById('name').value = '';
+                    document.getElementById('designation').value = '';
+                } else {
+                    alert('Failed to add to queue');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        // Check Auth
+        fetch('../api/check_auth.php').then(res => { if (!res.ok) window.location.href = 'login.html'; });
+    </script>
+</body>
+
+</html>

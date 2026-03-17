@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Overlay - Premium Design</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lt-blue: #0033cc;
+            --lt-red: #cc0000;
+            --lt-white: #ffffff;
+            --lt-transition: cubic-bezier(0.16, 1, 0.3, 1);
+            --lt-speed: 0.8s;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .schedule-wrapper {
+            position: absolute;
+            top: 5%;
+            right: 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+            pointer-events: none;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            height: 60px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+        }
+
+        .event-label {
+            width: 80px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-radius: 15px 0 0 15px;
+            box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 6;
+        }
+
+        .current .event-label {
+            background: linear-gradient(135deg, #cc0000 0%, #aa0000 100%);
+        }
+
+        .next .event-label {
+            background: linear-gradient(135deg, #001a66 0%, #0033cc 100%);
+        }
+
+        .event-main {
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 0 30px 30px 0;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            min-width: 350px;
+            box-shadow: 2px 6px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            margin-left: -10px;
+            color: #111;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-align: right;
+            justify-content: flex-end;
+        }
+
+        /* Animation States */
+        .schedule-wrapper.visible .event-item {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .schedule-wrapper.animate-out .event-item {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="schedule-wrapper" id="container">
+        <!-- Current Event -->
+        <div class="event-item current" id="row-current">
+            <div class="event-label">NOW</div>
+            <div class="event-main" id="text-current">EVENT NAME</div>
+        </div>
+
+        <!-- Next Event -->
+        <div class="event-item next" id="row-next">
+            <div class="event-label">NEXT</div>
+            <div class="event-main" id="text-next">NEXT EVENT NAME</div>
+        </div>
+    </div>
+
+    <script src="../assets/js/overlay-client.js"></script>
+    <script>
+        const container = document.getElementById('container');
+        const rowCur = document.getElementById('row-current');
+        const rowNxt = document.getElementById('row-next');
+        const txtCur = document.getElementById('text-current');
+        const txtNxt = document.getElementById('text-next');
+        let hideTimeout = null;
+
+        new OverlayClient('../data/ongoing.json', (data) => {
+            if (hideTimeout) clearTimeout(hideTimeout);
+
+            if (data.visible === false) {
+                container.classList.add('animate-out');
+                setTimeout(() => {
+                    container.classList.remove('visible');
+                }, 1000);
+                return;
+            }
+
+            // Update content
+            if (data.current) {
+                txtCur.textContent = data.current;
+                rowCur.style.display = 'flex';
+            } else {
+                rowCur.style.display = 'none';
+            }
+
+            if (data.next) {
+                txtNxt.textContent = data.next;
+                rowNxt.style.display = 'flex';
+            } else {
+                rowNxt.style.display = 'none';
+            }
+
+            container.classList.remove('animate-out');
+            container.classList.add('visible');
+
+            // Set delays for cascading entry
+            rowCur.style.transitionDelay = '0s';
+            rowNxt.style.transitionDelay = '0.2s';
+
+            // Auto-hide logic
+            if (data.autoHideSeconds) {
+                hideTimeout = setTimeout(() => {
+                    container.classList.add('animate-out');
+                    setTimeout(() => {
+                        container.classList.remove('visible');
+                    }, 1000);
+                }, data.autoHideSeconds * 1000);
+            }
+        }).start();
+    </script>
+</body>
+
+</html>

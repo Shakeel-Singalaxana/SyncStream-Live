@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks Overlay - Premium Design</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lt-blue: #0033cc;
+            --lt-red: #cc0000;
+            --lt-white: #ffffff;
+            --lt-transition: cubic-bezier(0.25, 1, 0.5, 1);
+            --lt-speed: 0.6s;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .marks-wrapper {
+            position: absolute;
+            bottom: 10%;
+            right: 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        /* Event Header */
+        .event-header {
+            height: 40px;
+            background: linear-gradient(to left, #001a66, #0033cc);
+            border-radius: 20px 0 0 20px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+            margin-bottom: 25px;
+            z-index: 5;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .result-row {
+            display: flex;
+            align-items: center;
+            height: 60px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+        }
+
+        .result-main {
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 30px 0 0 30px;
+            padding: 0 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 400px;
+            box-shadow: -2px 6px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 4;
+            text-align: right;
+        }
+
+        .result-name {
+            color: #111;
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .result-house {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .result-rank {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #cc0000 0%, #aa0000 100%);
+            border-radius: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+            box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-left: -20px;
+            z-index: 6;
+            position: relative;
+        }
+
+        .result-mark {
+            background: #0033cc;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-right: 15px;
+            box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Rank Colors */
+        .rank-1 .result-rank { background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%); color: #4d3a00; }
+        .rank-2 .result-rank { background: linear-gradient(135deg, #e0e0e0 0%, #888888 100%); color: #111; }
+        .rank-3 .result-rank { background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%); color: white; }
+
+        /* Animation States */
+        .marks-wrapper.visible .event-header,
+        .marks-wrapper.visible .result-row {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .marks-wrapper.animate-out .event-header,
+        .marks-wrapper.animate-out .result-row {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="marks-wrapper" id="container">
+        <div class="event-header" id="event-name">EVENT NAME</div>
+        <div class="results-list" id="results-list">
+            <!-- Dynamic rows -->
+        </div>
+    </div>
+
+    <script src="../assets/js/overlay-client.js"></script>
+    <script>
+        const container = document.getElementById('container');
+        const eventNameEl = document.getElementById('event-name');
+        const listEl = document.getElementById('results-list');
+        let hideTimeout = null;
+
+        const client = new OverlayClient('../data/marks.json', (data) => {
+            if (hideTimeout) clearTimeout(hideTimeout);
+
+            if (data.visible) {
+                eventNameEl.textContent = data.eventName || "";
+                
+                // Keep existing rows if we are just updating, or clear if new data
+                listEl.innerHTML = '';
+                
+                data.places.forEach((p, i) => {
+                    if (!p.name) return;
+                    
+                    const row = document.createElement('div');
+                    row.className = `result-row rank-${i + 1}`;
+                    row.style.transitionDelay = `${i * 0.15}s`;
+                    
+                    row.innerHTML = `
+                        <div class="result-main">
+                            <div class="result-name">${p.name}</div>
+                            <div class="result-house">${p.house}</div>
+                        </div>
+                        <div class="result-rank">
+                            ${i + 1}
+                        </div>
+                    `;
+                    
+                    if (p.mark) {
+                        const markDiv = document.createElement('div');
+                        markDiv.className = 'result-mark';
+                        markDiv.textContent = p.mark;
+                        row.querySelector('.result-main').prepend(markDiv);
+                    }
+                    
+                    listEl.appendChild(row);
+                });
+
+                container.classList.remove('visible', 'animate-out');
+                
+                // Force reflow to ensure the browser registers the elements in their hidden state
+                void container.offsetWidth;
+
+                container.classList.add('visible');
+
+                if (data.autoHideSeconds) {
+                    hideTimeout = setTimeout(() => {
+                        container.classList.add('animate-out');
+                        setTimeout(() => {
+                            container.classList.remove('visible');
+                        }, 1000);
+                    }, data.autoHideSeconds * 1000);
+                }
+            } else {
+                container.classList.add('animate-out');
+                setTimeout(() => {
+                    container.classList.remove('visible');
+                }, 1000);
+            }
+        });
+
+        client.start();
+    </script>
+</body>
+
+</html>

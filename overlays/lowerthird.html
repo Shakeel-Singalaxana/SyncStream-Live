@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower Third Overlay - Premium Design</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lt-blue: #0033cc;
+            --lt-red: #cc0000;
+            --lt-white: #ffffff;
+            --lt-transition: cubic-bezier(0.16, 1, 0.3, 1);
+            --lt-speed: 0.8s;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .lt-wrapper {
+            position: absolute;
+            bottom: 10%;
+            left: 5%;
+            display: grid;
+            grid-template-areas:
+                ". top ."
+                "logo main right"
+                ". bottom .";
+            grid-template-columns: 120px auto auto;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        /* 1. TOP BLUE BAR */
+        .lt-top-bar {
+            grid-area: top;
+            height: 35px;
+            background: linear-gradient(to right, #001a66, #0033cc);
+            border-radius: 0 20px 20px 0;
+            margin-bottom: -50px;
+            margin-left: -50px;
+            padding-left: 60px;
+            padding-right: 40px;
+            max-width: 300px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* 2. MAIN WHITE BAR */
+        .lt-main-bar {
+            grid-area: main;
+            height: 80px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 0 40px 40px 0;
+            margin-left: -60px;
+            padding-left: 80px;
+            padding-right: 50px;
+            min-width: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 2px 6px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+            z-index: 4;
+            overflow: hidden;
+        }
+
+        .lt-text-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .lt-subtitle {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: -2px;
+        }
+
+        .lt-title {
+            color: #111;
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-top: 10px;
+        }
+
+        /* 3. RIGHT RED BOX */
+        .lt-right-box {
+            grid-area: right;
+            height: 80px;
+            width: 80px;
+            background: linear-gradient(135deg, #cc0000 0%, #aa0000 100%);
+            border-radius: 10px 40px 40px 10px;
+            margin-left: -40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform var(--lt-speed) var(--lt-transition), opacity var(--lt-speed) ease;
+            z-index: 6;
+        }
+
+        .lt-right-box img {
+            width: 80%;
+            height: 80%;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+        }
+
+        /* 4. BOTTOM RED ACCENT */
+        .lt-bottom-accent {
+            grid-area: bottom;
+            height: 15px;
+            background: #cc0000;
+            border-radius: 0 0 10px 10px;
+            margin-top: -40px;
+            margin-left: -20px;
+            width: 150px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px) scaleY(0);
+            opacity: 0;
+            transition: transform 0.5s var(--lt-transition), opacity 0.5s ease;
+            z-index: 3;
+        }
+
+        /* 5. LOGO CIRCLE */
+        .lt-logo-container {
+            grid-area: logo;
+            width: 130px;
+            height: 130px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+            border: 5px solid #fff;
+            position: relative;
+            z-index: 10;
+            transform: scale(0) rotate(-180deg);
+            opacity: 0;
+            transition: transform 1s var(--lt-transition), opacity 0.5s ease;
+        }
+
+        .lt-logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding-bottom: 5px;
+        }
+
+        .lt-logo-ring {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+        }
+
+        /* --- ANIMATION STATES --- */
+        .lt-wrapper.visible .lt-logo-container {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        .lt-wrapper.visible .lt-main-bar {
+            transform: translateX(0);
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
+
+        .lt-wrapper.visible .lt-top-bar {
+            transform: translateX(0);
+            opacity: 1;
+            transition-delay: 0.4s;
+        }
+
+        .lt-wrapper.visible .lt-right-box {
+            transform: translateX(0);
+            opacity: 1;
+            transition-delay: 0.6s;
+        }
+
+        .lt-wrapper.visible .lt-bottom-accent {
+            transform: translateY(0) scaleY(1);
+            opacity: 1;
+            transition-delay: 0.8s;
+        }
+
+        /* --- HIDE / OUT ANIMATION --- */
+        .lt-wrapper.animate-out .lt-logo-container {
+            transform: scale(0) rotate(90deg);
+            opacity: 0;
+            transition-delay: 0.4s;
+        }
+
+        .lt-wrapper.animate-out .lt-main-bar {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition-delay: 0.2s;
+        }
+
+        .lt-wrapper.animate-out .lt-top-bar {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition-delay: 0.3s;
+        }
+
+        .lt-wrapper.animate-out .lt-right-box {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition-delay: 0s;
+        }
+
+        .lt-wrapper.animate-out .lt-bottom-accent {
+            transform: translateY(-50px) scaleY(0);
+            opacity: 0;
+            transition-delay: 0.1s;
+        }
+
+        /* Themes support */
+        .theme-navy .lt-top-bar {
+            background: linear-gradient(to right, #001a66, #0044ff);
+        }
+
+        .theme-maroon .lt-top-bar {
+            background: linear-gradient(to right, #660000, #990000);
+        }
+
+        .theme-gold .lt-top-bar {
+            background: linear-gradient(to right, #b8860b, #ffd700);
+        }
+
+        .theme-gold .lt-subtitle {
+            color: #8b6508;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lt-wrapper" id="container">
+        <!-- Logo -->
+        <div class="lt-logo-container">
+            <div class="lt-logo-ring"></div>
+            <img id="logo-img" src="../assets/media/logo.png" alt="Logo">
+        </div>
+
+        <!-- Main Bar -->
+        <div class="lt-main-bar">
+            <div class="lt-text-content">
+                <div class="lt-title" id="name">JOHNATHAN DOE</div>
+            </div>
+        </div>
+
+        <!-- Top Blue Bar -->
+        <div class="lt-top-bar" id="top-bar">
+            <div class="lt-text-content">
+                <div class="lt-subtitle" id="designation">OFFICIAL ORGANIZER</div>
+            </div>
+        </div>
+
+        <!-- Right Red Box -->
+        <div class="lt-right-box">
+            <!-- Symbolic house/category icon -->
+            <img id="lt-right-box" src="../assets/media/roo.png" alt="Logo">
+        </div>
+
+        <!-- Bottom Accent -->
+        <div class="lt-bottom-accent"></div>
+    </div>
+
+    <script src="../assets/js/overlay-client.js"></script>
+    <script>
+        const container = document.getElementById('container');
+        const nameEl = document.getElementById('name');
+        const desigEl = document.getElementById('designation');
+        const logoEl = document.getElementById('logo-img');
+
+        let hideTimeout = null;
+
+        // Initialize client
+        const client = new OverlayClient('../data/lowerthird.json', (data) => {
+            console.log("Processing update...", data);
+
+            // Handle Visibility / Animation
+            if (hideTimeout) clearTimeout(hideTimeout);
+
+            if (data.visible) {
+                // Update content while hidden if it was already hidden, 
+                // or just update it if it's already visible (might pop slightly)
+                nameEl.textContent = data.name || "";
+                desigEl.textContent = data.designation || "";
+
+                const logoFile = data.logo || 'logo.png';
+                logoEl.src = `../assets/media/${logoFile}`;
+
+                // Update Theme
+                container.className = `lt-wrapper theme-${data.theme || 'default'} visible`;
+
+                // Auto-hide logic
+                if (data.autoHideSeconds) {
+                    hideTimeout = setTimeout(() => {
+                        container.classList.add('animate-out');
+                        setTimeout(() => {
+                            container.classList.remove('visible');
+                            container.classList.remove('animate-out');
+                        }, 1000);
+                    }, data.autoHideSeconds * 1000);
+                }
+            } else {
+                container.classList.add('animate-out');
+                setTimeout(() => {
+                    container.classList.remove('visible');
+                    container.classList.remove('animate-out');
+                }, 1000);
+            }
+        });
+
+        client.start();
+    </script>
+</body>
+
+</html>

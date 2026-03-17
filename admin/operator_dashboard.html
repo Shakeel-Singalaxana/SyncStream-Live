@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operator Unified Dashboard</title>
+    <title>Operator Unified Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="admin-body">
+    <div class="admin-container" style="height: 100vh; display: flex; flex-direction: column;">
+        <div class="header-area">
+            <h1>OPERATOR LIVE DASHBOARD</h1>
+            <div>
+                <span id="clock"
+                    style="font-family: monospace; color: var(--admin-success); margin-right: 20px;">00:00:00</span>
+                <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Main Menu</a>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Scoreboard Staging Review -->
+            <div class="panel panel-full" id="sb-panel">
+                <div class="sb-status">
+                    <span>SCOREBOARD LIVE:</span>
+                    <span id="sb-state">Synced</span>
+                </div>
+                <div style="flex:1; text-align: center; color: #aaa; font-size: 0.9em;">
+                    Organizer updates will cause the indicator to blink. Click "ACKNOWLEDGE" to stop blinking.
+                </div>
+                <button class="btn btn-sync" id="btn-sb-ack" onclick="ackScoreboard()">ACKNOWLEDGE UPDATE</button>
+            </div>
+
+            <!-- Lower Thirds -->
+            <div class="panel">
+                <div class="col-header">
+                    <h2>LOWER THIRDS</h2>
+                    <div style="font-size: 0.8em; color: #888;">
+                        Hide in: <input type="number" id="lowerthird-timer" value="10"
+                            style="width: 40px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px;">s
+                    </div>
+                </div>
+                <button class="btn btn-hide" onclick="hideOverlay('lowerthird')">OFF AIR (HIDE)</button>
+                <div class="queue-container" id="q-lowerthird"></div>
+            </div>
+
+            <!-- Marks -->
+            <div class="panel">
+                <div class="col-header">
+                    <h2>MARKS / WINNERS</h2>
+                    <div style="font-size: 0.8em; color: #888;">
+                        Hide in: <input type="number" id="marks-timer" value="10"
+                            style="width: 40px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px;">s
+                    </div>
+                </div>
+                <button class="btn btn-hide" onclick="hideOverlay('marks')">OFF AIR (HIDE)</button>
+                <div class="queue-container" id="q-marks"></div>
+            </div>
+
+            <!-- Schedule -->
+            <div class="panel">
+                <div class="col-header">
+                    <h2>SCHEDULE</h2>
+                    <div style="font-size: 0.8em; color: #888;">
+                        Hide in: <input type="number" id="ongoing-timer" value="10"
+                            style="width: 40px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px;">s
+                    </div>
+                </div>
+                <button class="btn btn-hide" onclick="hideOverlay('ongoing')">OFF AIR (HIDE)</button>
+                <div class="queue-container" id="q-ongoing"></div>
+            </div>
+        </div>
+
+        <script>
+            function updateClock() {
+                document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+            }
+            setInterval(updateClock, 1000);
+
+            // --- DATA FETCHING ---
+            let lastQueues = { lowerthird: [], marks: [], ongoing: [] };
+            let lastSeenSB = localStorage.getItem('lastSeenSB') || 0;
+            let autoAckTimeout = null;
+
+            async function fetchAll() {
+                fetchQueue('lowerthird');
+                fetchQueue('marks');
+                fetchQueue('ongoing');
+                checkScoreboardUpdate();
+            }
+
+            async function checkScoreboardUpdate() {
+                try {
+                    const res = await fetch('../data/scoreboard.json?t=' + Date.now());
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (data.last_updated && data.last_updated > lastSeenSB) {
+                        // Start Auto-Ack timer if not already running
+                        if (!autoAckTimeout) {
+                            autoAckTimeout = setTimeout(() => {
+                                console.log("Auto-acknowledging scoreboard update...");
+                                ackScoreboard();
+                            }, 30000); // 30 seconds
+                        }
+
+                        document.getElementById('sb-state').textContent = "NEW UPDATE!";
+                        document.getElementById('sb-state').classList.add('blink');
+                        document.getElementById('btn-sb-ack').style.boxShadow = "0 0 15px #ffeb3b";
+                    } else {
+                        document.getElementById('sb-state').textContent = "Synced";
+                        document.getElementById('sb-state').classList.remove('blink');
+                        document.getElementById('btn-sb-ack').style.boxShadow = "none";
+                    }
+                } catch (e) { }
+            }
+
+            function ackScoreboard() {
+                if (autoAckTimeout) {
+                    clearTimeout(autoAckTimeout);
+                    autoAckTimeout = null;
+                }
+                fetch('../data/scoreboard.json?t=' + Date.now()).then(res => res.json()).then(data => {
+                    if (data.last_updated) {
+                        lastSeenSB = data.last_updated;
+                        localStorage.setItem('lastSeenSB', lastSeenSB);
+                        checkScoreboardUpdate();
+                    }
+                });
+            }
+
+
+            // --- ACTIONS ---
+            async function fetchQueue(type) {
+                try {
+                    const res = await fetch(`../api/queue.php?type=${type}`);
+                    const list = await res.json();
+                    renderQueue(type, list);
+                } catch (e) { console.error(e); }
+            }
+
+            function renderQueue(type, list) {
+                const container = document.getElementById(`q-${type}`);
+                const oldIds = new Set(lastQueues[type].map(i => i.id));
+                container.innerHTML = '';
+
+                list.forEach(item => {
+                    const isNew = !oldIds.has(item.id) && oldIds.size > 0;
+                    const div = document.createElement('div');
+                    div.className = `queue-item ${isNew ? 'new-item' : ''}`;
+
+                    let title = '', subtitle = '';
+                    if (type === 'lowerthird') { title = item.name; subtitle = item.designation; }
+                    else if (type === 'marks') { title = item.eventName; subtitle = `1st: ${item.places?.[0]?.name || ''}`; }
+                    else if (type === 'ongoing') { title = item.current; subtitle = `Next: ${item.next}`; }
+
+                    const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
+                    div.innerHTML = `
+                    <div class="q-details">
+                        <h4>${title || '(Empty)'}</h4>
+                        <p>${subtitle || ''}</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-go" onclick='goLive("${type}", ${itemStr})'>LIVE</button>
+                        <button class="btn btn-del" onclick="deleteItem('${type}', '${item.id}')">&times;</button>
+                    </div>
+                `;
+                    container.appendChild(div);
+                });
+                lastQueues[type] = list;
+            }
+
+            async function goLive(type, data) {
+                const payload = { type: type, data: data };
+                payload.data.visible = true;
+
+                // For modules with timers (lowerthird, marks, ongoing)
+                const timerEl = document.getElementById(`${type}-timer`);
+                if (timerEl) {
+                    payload.data.autoHideSeconds = parseInt(timerEl.value || 10);
+                }
+
+                await fetch('../api/update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            async function hideOverlay(type) {
+                const data = { visible: false };
+                if (type === 'ongoing') { data.current = ''; data.next = ''; }
+                if (type === 'lowerthird') { data.name = ''; data.designation = ''; }
+                await fetch('../api/update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: type, data: data })
+                });
+            }
+
+            async function deleteItem(type, id) {
+                if (!confirm('Delete?')) return;
+                await fetch('../api/queue.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete', type: type, id: id })
+                });
+            }
+
+            // Init
+            fetch('../api/check_auth.php').then(res => { if (!res.ok) window.location.href = 'login.html'; });
+            fetchAll();
+            setInterval(fetchAll, 2000);
+
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks Bug Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #000080;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: #800000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #600000;
+        }
+
+        .nav-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #000080;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Marks Bug Control</h2>
+
+        <label>Event Name</label>
+        <input type="text" id="eventName" placeholder="e.g. 100M BOYS FINAL">
+
+        <h3>1st Place</h3>
+        <input type="text" id="name1" placeholder="Name">
+        <input type="text" id="house1" placeholder="House/Team">
+        <input type="text" id="mark1" placeholder="Time/Distance">
+
+        <h3>2nd Place</h3>
+        <input type="text" id="name2" placeholder="Name">
+        <input type="text" id="house2" placeholder="House/Team">
+        <input type="text" id="mark2" placeholder="Time/Distance">
+
+        <h3>3rd Place</h3>
+        <input type="text" id="name3" placeholder="Name">
+        <input type="text" id="house3" placeholder="House/Team">
+        <input type="text" id="mark3" placeholder="Time/Distance">
+
+        <button onclick="update()">Update Marks</button>
+        <a href="index.html" class="nav-link">Back to Dashboard</a>
+    </div>
+
+    <script>
+        async function update() {
+            const data = {
+                eventName: document.getElementById('eventName').value,
+                places: [
+                    { name: document.getElementById('name1').value, house: document.getElementById('house1').value, mark: document.getElementById('mark1').value },
+                    { name: document.getElementById('name2').value, house: document.getElementById('house2').value, mark: document.getElementById('mark2').value },
+                    { name: document.getElementById('name3').value, house: document.getElementById('house3').value, mark: document.getElementById('mark3').value }
+                ]
+            };
+
+            const response = await fetch('../api/update.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'marks', data: data })
+            });
+
+            if (response.ok) {
+                alert('Updated!');
+            } else if (response.status === 401 || response.status === 403) {
+                alert('Session expired. Please login again.');
+                window.location.href = 'login.html';
+            } else {
+                const errorData = await response.json();
+                alert('Update Failed: ' + (errorData.details || errorData.error));
+            }
+        }
+        fetch('../api/check_auth.php')
+            .then(res => {
+                if (!res.ok) window.location.href = 'login.html';
+            });
+    </script>
+</body>
+
+</html>

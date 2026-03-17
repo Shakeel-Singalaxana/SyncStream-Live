@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Control</title>
+    <title>Schedule Control</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="admin-body">
+    <div class="admin-container">
+        <div class="header-area">
+            <h1>Schedule Control</h1>
+            <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Back to Dashboard</a>
+        </div>
+
+        <div class="panel">
+            <div class="form-group">
+                <label>Current Event (Now)</label>
+                <input type="text" id="current" placeholder="e.g. 4x100M Relay (Boys)">
+            </div>
+
+            <div class="form-group">
+                <label>Next Event (Upcoming)</label>
+                <input type="text" id="next" placeholder="e.g. 4x100M Relay (Girls)">
+            </div>
+
+            <div class="form-group">
+                <label style="color: var(--admin-text-muted); font-size: 0.9em;">
+                    Auto-hide (Seconds): <input type="number" id="autoHide" value="10"
+                        style="width: 80px; display: inline-block; margin-left: 10px;">
+                </label>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-danger" style="flex: 1; padding: 15px;" onclick="updateLive()">Update LIVE
+                    Schedule</button>
+                <button class="btn btn-primary" style="flex: 1; padding: 15px;" onclick="addToQueue()">+ Add to
+                    Queue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateLive() {
+            const data = {
+                current: document.getElementById('current').value,
+                next: document.getElementById('next').value,
+                visible: true,
+                autoHideSeconds: parseInt(document.getElementById('autoHide').value || 10)
+            };
+
+            if (!data.current && !data.next) {
+                alert("Please enter event details.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'ongoing', data: data })
+                });
+
+                if (res.ok) {
+                    alert('Schedule Updated LIVE!');
+                } else {
+                    alert('Failed to update live');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        async function addToQueue() {
+            const data = {
+                current: document.getElementById('current').value,
+                next: document.getElementById('next').value,
+                type: 'ongoing'
+            };
+
+            if (!data.current && !data.next) {
+                alert("Please enter event details.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/queue.php?type=ongoing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', type: 'ongoing', data: data })
+                });
+
+                if (res.ok) {
+                    alert('Added to Queue!');
+                    document.getElementById('current').value = '';
+                    document.getElementById('next').value = '';
+                } else {
+                    alert('Failed to add to queue');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        fetch('../api/check_auth.php').then(res => { if (!res.ok) window.location.href = 'login.html'; });
+    </script>
+</body>
+
+</html>

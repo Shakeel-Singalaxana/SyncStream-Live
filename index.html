@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCMU Sportsmeet 25 - ShakbroTech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0033cc;
+            --secondary: #cc0000;
+            --bg: #0a0a0c;
+            --card-bg: #16161a;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Subtle Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, #0033cc10 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .brand-logo {
+            font-weight: 900;
+            font-size: 3.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #fff, var(--text-dim));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .brand-logo span {
+            color: var(--primary);
+            -webkit-text-fill-color: var(--primary);
+        }
+
+        .event-title {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .grid-section {
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .nav-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 51, 204, 0.2);
+        }
+
+        .nav-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .nav-card * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .admin-special {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a1a20 0%, #0a0a0c 100%);
+            border-left: 4px solid var(--primary);
+        }
+
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .copyright {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .shakbro-tag {
+            color: var(--text-main);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .shakbro-tag:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .brand-logo {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 40px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="brand-logo">Shakbro<span>Tech</span></div>
+            <div class="event-title">BCMU Sportsmeet '25 Center</div>
+        </header>
+
+        <section class="grid-section">
+            <div class="section-label">Management</div>
+            <div class="grid">
+                <a href="admin/" class="nav-card admin-special">
+                    <div class="card-title">Admin Dashboard</div>
+                    <div class="card-desc">Control all overlays, update scores, and manage events in real-time.</div>
+                </a>
+            </div>
+        </section>
+
+        <section class="grid-section">
+            <div class="section-label">Live Overlays</div>
+            <div class="grid">
+                <a href="overlays/lowerthird.html" target="_blank" class="nav-card">
+                    <div class="card-title">Lower Third</div>
+                    <div class="card-desc">Speaker names and event sub-titles.</div>
+                </a>
+                <a href="overlays/marks.html" target="_blank" class="nav-card">
+                    <div class="card-title">Marks Overlay</div>
+                    <div class="card-desc">Event results and winner podiums.</div>
+                </a>
+                <a href="overlays/ongoing.html" target="_blank" class="nav-card">
+                    <div class="card-title">Ongoing Event</div>
+                    <div class="card-desc">Current event and house status.</div>
+                </a>
+                <a href="overlays/scoreboard.html" target="_blank" class="nav-card">
+                    <div class="card-title">Scoreboard</div>
+                    <div class="card-desc">Full house standings and points distribution.</div>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="copyright">
+            &copy; 2026 Crafted with precision by <a href="https://github.com/Shakeel-Singalaxana/"
+                class="shakbro-tag">ShakbroTech</a>. All rights reserved.
+        </div>
+    </footer>
+</body>
+
+</html>

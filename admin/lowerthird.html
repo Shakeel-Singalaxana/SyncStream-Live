@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="refresh" content="0; url=index.html">
+    <script>window.location.href = "index.html";</script>
+</head>
+
+<body>
+    <p>Redirecting to <a href="index.html">Dashboard</a>...</p>
+</body>
+
+</html>
+body {
+font-family: 'Segoe UI', Arial, sans-serif;
+background-color: #f0f2f5;
+padding: 20px;
+margin: 0;
+display: flex;
+gap: 20px;
+max-width: 1200px;
+margin: auto;
+}
+
+.editor-col,
+.queue-col {
+flex: 1;
+min-width: 300px;
+}
+
+.container {
+background: white;
+padding: 25px;
+border-radius: 12px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+height: fit-content;
+}
+
+h2 {
+text-align: center;
+color: #000080;
+margin-top: 0;
+}
+
+h3 {
+color: #555;
+border-bottom: 2px solid #eee;
+padding-bottom: 10px;
+}
+
+.form-group {
+margin-bottom: 15px;
+}
+
+label {
+display: block;
+margin-bottom: 5px;
+font-weight: 600;
+color: #333;
+}
+
+input[type="text"],
+select {
+width: 100%;
+padding: 12px;
+border: 1px solid #ddd;
+border-radius: 6px;
+box-sizing: border-box;
+font-size: 14px;
+}
+
+button {
+padding: 12px;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: bold;
+transition: opacity 0.2s;
+color: white;
+width: 100%;
+}
+
+button:hover {
+opacity: 0.9;
+}
+
+.btn-update {
+background-color: #d93025;
+margin-top: 10px;
+}
+
+/* Red */
+.btn-queue {
+background-color: #1a73e8;
+margin-top: 10px;
+}
+
+/* Blue */
+.btn-hide {
+background-color: #555;
+margin-bottom: 15px;
+}
+
+/* Dark Grey */
+
+.nav-link {
+display: block;
+text-align: center;
+margin-top: 20px;
+color: #000080;
+text-decoration: none;
+}
+
+/* Queue List */
+#queue-list {
+margin-top: 20px;
+}
+
+.queue-item {
+background: #f8f9fa;
+border: 1px solid #e9ecef;
+padding: 15px;
+margin-bottom: 10px;
+border-radius: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.q-info h4 {
+margin: 0 0 5px 0;
+color: #333;
+}
+
+.q-info p {
+margin: 0;
+font-size: 0.9em;
+color: #666;
+}
+
+.q-actions {
+display: flex;
+gap: 5px;
+}
+
+.btn-go {
+background: #d93025;
+padding: 8px 15px;
+font-size: 0.9em;
+width: auto;
+}
+
+.btn-del {
+background: #eee;
+color: #333;
+padding: 8px;
+font-size: 1.2em;
+width: auto;
+}
+
+.btn-del:hover {
+background: #ddd;
+}
+
+.empty-msg {
+text-align: center;
+color: #999;
+padding: 20px;
+font-style: italic;
+}
+</style>
+</head>
+
+<body>
+
+    <!-- Left Column: Data Entry (Organizer) -->
+    <div class="editor-col">
+        <div class="container">
+            <h2>Editor / Organizer</h2>
+            <h3>Step 1: Enter Details</h3>
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="name" placeholder="Enter Name">
+            </div>
+
+            <div class="form-group">
+                <label>Designation</label>
+                <input type="text" id="designation" placeholder="Enter Designation">
+            </div>
+
+            <div class="form-group">
+                <label>Styles</label>
+                <select id="colorScheme">
+                    <option value="default">Default (Navy/Maroon)</option>
+                    <option value="gold">Gold Theme</option>
+                    <option value="ash">Ash Theme</option>
+                    <option value="black">Black Theme</option>
+                </select>
+            </div>
+
+
+
+            <div class="form-group">
+                <label>Logo Filename</label>
+                <input type="text" id="logoFilename" placeholder="e.g. logo.png" value="logo.png">
+                <small>File must be in assets/media/</small>
+            </div>
+
+            <button class="btn-queue" onclick="addToQueue()">+ Add to Queue</button>
+            <button class="btn-update" onclick="updateLive()">Update LIVE Now</button>
+
+            <a href="index.html" class="nav-link">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Right Column: Queue (Operator) -->
+    <div class="queue-col">
+        <div class="container">
+            <h2>Live Operator</h2>
+            <h3>Step 2: Queue / On Air</h3>
+
+            <button class="btn-hide" onclick="hideOverlay()">OFF AIR (HIDE)</button>
+
+            <div id="queue-list">
+                <!-- Queue Items -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LIVE UPDATE LOGIC ---
+        async function updateLive(dataOverride = null) {
+            let data = dataOverride;
+
+            if (!data) {
+                // Get from Organizer Inputs
+                data = {
+                    name: document.getElementById('name').value,
+                    designation: document.getElementById('designation').value,
+                    theme: document.getElementById('colorScheme').value,
+                    logo: document.getElementById('logoFilename').value,
+                    visible: true // Default to true when clicking Update Live
+                };
+            } else {
+                // Ensure visibility is true when going live from queue
+                data.visible = true;
+            }
+
+            try {
+                const response = await fetch('../api/update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'lowerthird', data: data })
+                });
+
+                if (response.ok) {
+                    if (!dataOverride) alert('Updated Successfully!');
+                } else if (response.status === 401 || response.status === 403) {
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Update Failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection Error');
+            }
+        }
+
+        async function hideOverlay() {
+            // Send generic hidden state
+            const data = {
+                name: '',
+                designation: '',
+                theme: 'default',
+                logo: 'logo.png',
+                visible: false
+            };
+
+            await fetch('../api/update.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'lowerthird', data: data })
+            });
+        }
+
+        // --- QUEUE LOGIC ---
+        async function fetchQueue() {
+            try {
+                const res = await fetch('../api/queue.php');
+                const list = await res.json();
+                renderQueue(list);
+            } catch (e) { console.error('Queue load failed', e); }
+        }
+
+        async function addToQueue() {
+            const data = {
+                name: document.getElementById('name').value,
+                designation: document.getElementById('designation').value,
+                theme: document.getElementById('colorScheme').value,
+                logo: document.getElementById('logoFilename').value,
+                visible: true
+            };
+
+            if (!data.name && !data.designation) {
+                alert("Please enter a name or designation.");
+                return;
+            }
+
+            try {
+                const res = await fetch('../api/queue.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', data: data })
+                });
+                if (res.ok) {
+                    fetchQueue();
+                    document.getElementById('name').value = '';
+                    document.getElementById('designation').value = '';
+                }
+            } catch (e) { alert('Failed to add to queue'); }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm("Remove from queue?")) return;
+            await fetch('../api/queue.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', id: id })
+            });
+            fetchQueue();
+        }
+
+        function renderQueue(list) {
+            const container = document.getElementById('queue-list');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Queue is empty. Add items from the left.</div>';
+                return;
+            }
+
+            list.forEach(item => {
+                const li = document.createElement('div');
+                li.className = 'queue-item';
+                // Pass item data to goLive, converting to JSON string for the attribute
+                const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
+
+                li.innerHTML = `
+                    <div class="q-info">
+                        <h4>${item.name || '(No Name)'}</h4>
+                        <p>${item.designation || ''}</p>
+                    </div>
+                    <div class="q-actions">
+                        <button class="btn-go" onclick='goLive(${itemStr})'>GO LIVE</button>
+                        <button class="btn-del" onclick="deleteItem('${item.id}')">&times;</button>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function goLive(item) {
+            updateLive(item);
+        }
+
+        fetch('../api/check_auth.php').then(res => { if (!res.ok) window.location.href = 'login.html'; });
+        fetchQueue();
+        setInterval(fetchQueue, 3000);
+
+    </script>
+</body>
+
+</html>
